@@ -1,0 +1,317 @@
+#include "stm32l1xx.h"
+//Base LL driver included
+#include "stm32l1xx_ll_system.h"
+#include "stm32l1xx_ll_bus.h"
+
+#include "stm32l1xx_ll_rcc.h"
+#include "stm32l1xx_ll_gpio.h"
+#include "stm32l1xx_ll_pwr.h"
+#include "stm32l1xx_ll_utils.h"
+//Ll driver for LCD included
+
+#include "stm32l1xx_ll_lcd.h"
+#include "stm32l152_glass_lcd.h"
+
+#include "stdio.h" //for sprintf function access
+
+void SystemClock_Config(void);
+char disp_str[7];
+uint8_t usr_button;
+uint8_t count = 0;
+uint8_t countB = 0;
+uint8_t B1;
+uint8_t B1_cnt=0;
+uint8_t B3;
+//char sw_str[7];
+
+int main()
+{
+	// Declare struct for GPIO config
+	LL_GPIO_InitTypeDef GPIO_InitStruct;//LL_GPIO_InitTypeDef is struct. GPIO_InitStruct is object name.
+	SystemClock_Config(); //Max-performance configure
+	LCD_GLASS_Init(); //LCD low-level init
+	
+	//EnableClock
+	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
+	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
+	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOC);
+	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOD);
+	
+	// Config GPIOA using struct
+	GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
+	GPIO_InitStruct.Pin = LL_GPIO_PIN_0;
+	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+	// Write configuration to GPIOA register
+	LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+	
+		// Config GPIOB using struct
+	GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
+	GPIO_InitStruct.Pin = LL_GPIO_PIN_4;
+	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+	GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
+	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+	// Write configuration to GPIOA register
+	LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+	
+			// Config GPIOA using struct
+	GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
+	GPIO_InitStruct.Pin = LL_GPIO_PIN_5;
+	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+	// Write configuration to GPIOA register
+	LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+	
+//				// Config GPIOA using struct
+//	GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
+//	GPIO_InitStruct.Pin = LL_GPIO_PIN_11;
+//	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+//	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+//	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+//	// Write configuration to GPIOA register
+//	LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+	
+		// Config GPIOA using struct
+	GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
+	GPIO_InitStruct.Pin = LL_GPIO_PIN_12;
+	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+	// Write configuration to GPIOA register
+	LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+	
+//PB
+	
+	// Config GPIOB using struct
+	GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
+	GPIO_InitStruct.Pin = LL_GPIO_PIN_6;
+	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+	// Write configuration to GPIOB register
+	LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+	// Config GPIOB using struct
+	GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
+	GPIO_InitStruct.Pin = LL_GPIO_PIN_7;
+	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+	// Write configuration to GPIOB register
+	LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+	
+
+//PC
+
+	// Config GPIOC using struct	
+	GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
+	GPIO_InitStruct.Pin = LL_GPIO_PIN_12;
+	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+	// Write configuration to GPIOC register
+	LL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+	
+	//PD
+	// Config GPIOD using struct	
+	GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
+	GPIO_InitStruct.Pin = LL_GPIO_PIN_2;
+	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+	// Write configuration to GPIOD register
+	LL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+	
+	
+	
+	//---------------------------------------------------------------------------------------------
+//	
+//		// Config GPIOD using struct	
+//	GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
+//	GPIO_InitStruct.Pin = LL_GPIO_PIN_2;
+//	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+//	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+//	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+//	// Write configuration to GPIOD register
+//	LL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+//	
+//			// Config GPIOB using struct
+//	GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
+//	GPIO_InitStruct.Pin = LL_GPIO_PIN_4;
+//	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+//	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+//	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+//	// Write configuration to GPIOA register
+//	LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+//	
+//		// Config GPIOC using struct	
+//	GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
+//	GPIO_InitStruct.Pin = LL_GPIO_PIN_12;
+//	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+//	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+//	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+//	// Write configuration to GPIOC register
+//	LL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+	//----------------------------------------------------------------------------------------------------
+	//Read PA0 pin state
+	NVIC_EnableIRQ((IRQn_Type)9);
+	NVIC_SetPriority((IRQn_Type)9, 0);
+	
+
+
+//LL_GPIO_SetInputPin(GPIOA, LL_GPIO_PIN_4);
+
+
+			
+			while(1){
+//				LL_GPIO_IsInputPinSet(GPIOA, LL_GPIO_PIN_4);
+//				LL_GPIO_IsInputPinSet(GPIOC, LL_GPIO_PIN_12);
+//				LL_GPIO_IsInputPinSet(GPIOD, LL_GPIO_PIN_2);
+			
+		
+		usr_button = LL_GPIO_IsInputPinSet(GPIOA, LL_GPIO_PIN_0);
+		
+//		B2 = LL_GPIO_IsInputPinSet(GPIOD, LL_GPIO_PIN_2);	
+//		B3 = LL_GPIO_IsInputPinSet(GPIOA, LL_GPIO_PIN_12);
+//		 if(usr_button)
+//		{
+//			count = (count%256)+1;
+//			//count = (countB%256)+1;
+//			LL_mDelay(500);
+//			if(count%2 == 1 )
+//			{
+//				LCD_GLASS_Clear();
+//				LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_6);
+//				LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_7);
+//				sprintf(disp_str, "START");//show LCD of arey
+//				LCD_GLASS_DisplayString((uint8_t*)disp_str);						
+//			}
+
+//			else
+//			{
+//				LCD_GLASS_Clear();
+//				LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_6);
+//				LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_7);
+//				sprintf(disp_str, "END ");//show LCD of arey
+//				LCD_GLASS_DisplayString((uint8_t*)disp_str);
+//				LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_12);
+//				LL_mDelay(5000);
+//				LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_12);
+//				
+//				LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_4);
+//				
+//				LL_GPIO_SetOutputPin(GPIOC, LL_GPIO_PIN_12);
+//				
+//				LL_GPIO_SetOutputPin(GPIOD, LL_GPIO_PIN_2);
+//			
+//				
+//			}
+//		}
+		
+			if(LL_GPIO_IsInputPinSet(GPIOA, LL_GPIO_PIN_0))
+			{LCD_GLASS_Clear();
+				LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_6);
+				LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_7);
+				sprintf(disp_str, "START");//show LCD of arey
+				LCD_GLASS_DisplayString((uint8_t*)disp_str);
+
+				LL_GPIO_SetOutputPin(GPIOD, LL_GPIO_PIN_2);
+				LL_mDelay(2000);
+				LL_GPIO_SetOutputPin(GPIOC, LL_GPIO_PIN_12);
+				LL_mDelay(2000);
+				LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_12);
+				LL_mDelay(2000);
+
+				LL_GPIO_ResetOutputPin(GPIOD, LL_GPIO_PIN_2);
+				LL_mDelay(2000);
+				LL_GPIO_ResetOutputPin(GPIOC, LL_GPIO_PIN_12);
+				LL_mDelay(2000);
+				LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_12);
+				LL_mDelay(2000);
+				
+//				LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_11);
+				sprintf(disp_str, "T-OUT");//show LCD of arey
+				LCD_GLASS_DisplayString((uint8_t*)disp_str);
+					
+				LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_5);
+				LL_mDelay(5000);
+				LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_5);
+
+				
+				
+			}
+		}
+	
+			
+//			while(1)
+//			{
+//				B1 = LL_GPIO_IsInputPinSet(GPIOA, LL_GPIO_PIN_4);
+//				
+////				if( B1 == 0 ){
+//					
+//				LL_GPIO_SetOutputPin(GPIOD, LL_GPIO_PIN_2);
+//				
+//				LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_12);
+//				
+//				LL_GPIO_SetOutputPin(GPIOC, LL_GPIO_PIN_12);
+//				}				
+//			}
+	}
+
+void SystemClock_Config(void)
+{
+  /* Enable ACC64 access and set FLASH latency */ 
+  LL_FLASH_Enable64bitAccess();; 
+  LL_FLASH_SetLatency(LL_FLASH_LATENCY_1);
+
+  /* Set Voltage scale1 as MCU will run at 32MHz */
+  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
+  LL_PWR_SetRegulVoltageScaling(LL_PWR_REGU_VOLTAGE_SCALE1);
+  
+  /* Poll VOSF bit of in PWR_CSR. Wait until it is reset to 0 */
+  while (LL_PWR_IsActiveFlag_VOSF() != 0)
+  {
+  };
+  
+  /* Enable HSI if not already activated*/
+  if (LL_RCC_HSI_IsReady() == 0)
+  {
+    /* HSI configuration and activation */
+    LL_RCC_HSI_Enable();
+    while(LL_RCC_HSI_IsReady() != 1)
+    {
+    };
+  }
+  
+	
+  /* Main PLL configuration and activation */
+  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI, LL_RCC_PLL_MUL_6, LL_RCC_PLL_DIV_3);
+
+  LL_RCC_PLL_Enable();
+  while(LL_RCC_PLL_IsReady() != 1)
+  {
+  };
+  
+  /* Sysclk activation on the main PLL */
+  LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
+  LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
+  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
+  {
+  };
+  
+  /* Set APB1 & APB2 prescaler*/
+  LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
+  LL_RCC_SetAPB2Prescaler(LL_RCC_APB2_DIV_1);
+
+  /* Set systick to 1ms in using frequency set to 32MHz                             */
+  /* This frequency can be calculated through LL RCC macro                          */
+  /* ex: __LL_RCC_CALC_PLLCLK_FREQ (HSI_VALUE, LL_RCC_PLL_MUL_6, LL_RCC_PLL_DIV_3); */
+  LL_Init1msTick(32000000);
+  
+  /* Update CMSIS variable (which can be updated also through SystemCoreClockUpdate function) */
+  LL_SetSystemCoreClock(32000000);
+}
+
+
