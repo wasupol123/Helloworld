@@ -1,0 +1,127 @@
+
+/*Base register adddress header file*/
+#include "stm32l1xx.h"
+/*Library related header files*/
+#include "stm32l1xx_ll_gpio.h"
+#include "stm32l1xx_ll_pwr.h"
+#include "stm32l1xx_ll_rcc.h"
+#include "stm32l1xx_ll_bus.h"
+#include "stm32l1xx_ll_utils.h"
+#include "stm32l1xx_ll_system.h"
+#include "stm32l1xx_ll_tim.h"
+#include "stm32l1xx_ll_usart.h"
+#include "stm32l1xx_ll_lcd.h"
+#include "stm32l152_glass_lcd.h"
+#include "dwt_delay.h"
+
+void SystemClock_Config(void);
+void OW_WriteBit(uint8_t d);
+uint8_t OW_ReadBit(void);
+void DS1820_GPIO_Configure(void);
+uint8_t DS1820_ResetPulse(void);
+void OW_Master(void);
+void OW_Slave(void);
+void OW_WriteByte(uint8_t data);
+uint16_t OW_ReadByte(void);
+void GPIO_Config(void);
+
+uint32_t save[4] = {0};
+uint32_t seg1[10] = {LL_GPIO_PIN_2 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11 | LL_GPIO_PIN_12 | LL_GPIO_PIN_13 | LL_GPIO_PIN_14, //0
+										 LL_GPIO_PIN_10 | LL_GPIO_PIN_11, //1
+										 LL_GPIO_PIN_2 | LL_GPIO_PIN_10 | LL_GPIO_PIN_15 | LL_GPIO_PIN_13 | LL_GPIO_PIN_12, //2
+										 LL_GPIO_PIN_2 | LL_GPIO_PIN_10 | LL_GPIO_PIN_15 | LL_GPIO_PIN_11 | LL_GPIO_PIN_12, //3
+										 LL_GPIO_PIN_14 | LL_GPIO_PIN_10 | LL_GPIO_PIN_15 | LL_GPIO_PIN_11, //4
+										 LL_GPIO_PIN_2 | LL_GPIO_PIN_15 | LL_GPIO_PIN_14 | LL_GPIO_PIN_11 | LL_GPIO_PIN_12, //5
+										 LL_GPIO_PIN_2 | LL_GPIO_PIN_11 | LL_GPIO_PIN_12 | LL_GPIO_PIN_13 | LL_GPIO_PIN_14 | LL_GPIO_PIN_15, //6
+										 LL_GPIO_PIN_2 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11, //7
+										 LL_GPIO_PIN_2 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11 | LL_GPIO_PIN_12 | LL_GPIO_PIN_13 | LL_GPIO_PIN_14 | LL_GPIO_PIN_15, //8
+										 LL_GPIO_PIN_2 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11 | LL_GPIO_PIN_12 | LL_GPIO_PIN_14 | LL_GPIO_PIN_15 //9
+									
+	};
+
+
+uint32_t digit[4] = {LL_GPIO_PIN_0 , LL_GPIO_PIN_1 , LL_GPIO_PIN_2 , LL_GPIO_PIN_3};
+
+void ConvertDigitToArrayR_L(int tempConv)
+{
+	for(int i = 0 ; i < 4 ; ++i) //convert num to digit array L->R
+		{
+			if(i == 0)
+			{
+				save[i] = tempConv /1000;			
+			}
+			else if(i == 1)
+			{
+				save[i] = tempConv/100 %10;
+			}
+			else if(i == 2)
+			{
+				save[i] = (tempConv %100)/10;
+			}
+			else if(i ==3)
+			{
+				save[i] = tempConv %10;
+			}
+		}
+		catmsg = tempConv;
+}
+void show_a(void)
+{
+			for(int i=0;i<4;i++)
+	  {
+			LL_GPIO_ResetOutputPin(GPIOC, LL_GPIO_PIN_0 | LL_GPIO_PIN_1 | LL_GPIO_PIN_2 | LL_GPIO_PIN_3);//Write 0 to GPIOC
+			LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_2 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11 | LL_GPIO_PIN_12 | LL_GPIO_PIN_13 | LL_GPIO_PIN_14 | LL_GPIO_PIN_15);//Reser all segment
+			LL_GPIO_SetOutputPin(GPIOC, digit[i]);
+			LL_GPIO_SetOutputPin(GPIOB, seg1[save[i]]);
+		};
+}
+
+/*
+void ConvertTOSeg(void)
+{
+	for(int i = 0 ; i < 4 ; ++i) //convert digit to leg 7-seg
+		{
+			switch(save[i]){
+				case 0 : save[i] = seg1[0];
+								 break;
+			  case 1 : save[i] = seg1[1];
+								 break;
+				case 2 : save[i] = seg1[2];
+								 break;
+				case 3 : save[i] = seg1[3];
+								 break;
+				case 4 : save[i] = seg1[4];
+								 break;
+				case 5 : save[i] = seg1[5];
+								 break;
+				case 6 : save[i] = seg1[6];
+								 break;
+				case 7 : save[i] = seg1[7];
+								 break;
+				case 8 : save[i] = seg1[8];
+								 break;
+				case 9 : save[i] = seg1[9];
+								 break;
+			}
+		}
+}
+*/
+
+void ShowSeg(void)
+{
+	for(int i = 0 ; i < 4 ; ++i) //show 7-seg
+		{
+			
+				LL_GPIO_ResetOutputPin(GPIOC, LL_GPIO_PIN_0 | LL_GPIO_PIN_1 | LL_GPIO_PIN_2 | LL_GPIO_PIN_3); // Write 0 to GPIOC port
+        LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_2 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11 | LL_GPIO_PIN_12 | LL_GPIO_PIN_13 | LL_GPIO_PIN_14 | LL_GPIO_PIN_15); // Reset all segment (PB2,PB10-PB15)
+				LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_5);
+				LL_GPIO_SetOutputPin(GPIOB, save[i]);
+        LL_GPIO_SetOutputPin(GPIOC, digit[i]);
+				if(i==1)
+					LL_GPIO_SetOutputPin(GPIOA,dp);
+				if(i<3)
+				{
+					LL_mDelay(1);
+				}
+		}
+}

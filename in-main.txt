@@ -1,0 +1,71 @@
+int main()
+{
+	DWT_Init();
+	DS1820_GPIO_Configure();
+	ltc4727_GPIO_Config();
+	
+	SystemClock_Config();
+	
+	while(1)
+	{
+		//Send reset pulse
+		DS1820_ResetPulse();
+			
+		//Send 'Skip Rom (0xCC)' command
+		OW_WriteByte(0xCC);
+		
+		//Send 'Temp Convert (0x44)' command
+		OW_WriteByte(0x44);
+		
+		//Delay at least 200ms (typical conversion time)
+		//LL_mDelay(200);
+		
+		//Send reset pulse
+		DS1820_ResetPulse();
+		
+		//Send 'Skip Rom (0xCC)' command
+		OW_WriteByte(0xCC);
+		
+		//Send 'Read Scractpad (0xBE)' command
+		OW_WriteByte(0xBE);
+		
+		//Read byte 1 (Temperature data in LSB)
+		//Read byte 2 (Temperature data in MSB)
+		temp = OW_ReadByte();
+		
+		//Convert to readable floating point temperature
+		temp_cal = (temp*1.0) / 16.0;
+
+		//segment((uint32_t)temp_cal);
+		ConvertDigitToArrayR_L((int)temp_cal*100);
+		
+		for(int i=0;i<4;i++)
+		{
+			LL_GPIO_ResetOutputPin(GPIOC, LL_GPIO_PIN_0 | LL_GPIO_PIN_1 | LL_GPIO_PIN_2 | LL_GPIO_PIN_3);//Write 0 to GPIOC
+			LL_GPIO_ResetOutputPin(GPIOB, seg1[8]);//Reser all segment
+			
+			LL_GPIO_SetOutputPin(GPIOB, seg1[save[i]]);
+			LL_GPIO_SetOutputPin(GPIOC, digit[i]);
+			
+			if(i < 3)
+				LL_mDelay(2);
+		}
+		
+
+		//ConvertDigitToArrayR_L((int)temp_cal*100);
+		//ConvertDigitToArrayR_L(catmsg);
+		//show_a();
+		//ShowSeg();
+		
+		if (temp_cal > 20.00)
+			
+		{
+		TIM_OC_Config(ARR_CALCULATE(E_O6));
+		}
+			
+		else 
+			{
+			TIM_OC_Config(ARR_CALCULATE(A_06));
+		  }
+	}
+}
